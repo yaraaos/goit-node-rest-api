@@ -20,10 +20,15 @@ export async function initDb() {
   try {
     await sequelize.authenticate();
     console.log("Database connection successful");
+    await import("./User.js");
+    await import("./Contact.js");
+    await import("./associations.js");
+  await sequelize.sync({ alter: true }); 
+  
+    console.log("Models synchronized");
   } catch (error) {
     console.error("Unable to connect to the database:", error.message);
     process.exit(1);
   }
 }
-
 export default sequelize;
