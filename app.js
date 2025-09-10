@@ -1,7 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-
+import "dotenv/config";
+import { initDb } from "./db/sequelize.js";  
 import contactsRouter from "./routes/contactsRouter.js";
 
 const app = express();
@@ -21,6 +22,13 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
-  console.log("Server is running. Use our API on port: 3000");
-});
+const port = process.env.PORT || 3000;
+
+(async () => {
+  // Try to connect to DB first; exit(1) on failure (handled inside initDb)
+  await initDb(); // prints "Database connection successful" on success
+
+  app.listen(port, () => {
+    console.log(`Server is running. Use our API on port: ${port}`);
+  });
+})();

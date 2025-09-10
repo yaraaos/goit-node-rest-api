@@ -1,4 +1,5 @@
 import * as contactsService from "../services/contactsServices.js";
+import { createContactSchema, updateContactSchema, updateFavoriteSchema } from "../schemas/contactsSchemas.js";
 
 export const getAllContacts = async (req, res) => {
   try {
@@ -37,8 +38,6 @@ export const deleteContact = async (req, res) => {
   }
 };
 
-import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js";
-
 export const createContact = async (req, res) => {
   try {
     const { error } = createContactSchema.validate(req.body);
@@ -49,6 +48,7 @@ export const createContact = async (req, res) => {
     const newContact = await contactsService.addContact(name, email, phone);
     res.status(201).json(newContact);
   } catch (error) {
+    console.error('Create contact failed:', error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -70,6 +70,20 @@ export const updateContact = async (req, res) => {
       res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateFavorite = async (req, res) => {
+  try {
+    const { error } = updateFavoriteSchema.validate(req.body);
+    if (error) return res.status(400).json({ message: error.message });
+
+    const { id } = req.params;
+    const updated = await contactsService.updateStatusContact(id, req.body);
+    if (!updated) return res.status(404).json({ message: "Not found" });
+    res.status(200).json(updated);
+  } catch (e) {
     res.status(500).json({ message: "Server error" });
   }
 };
