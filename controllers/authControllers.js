@@ -76,3 +76,18 @@ export const logout = async (req, res, next) => {
     next(HttpError(401, "Not authorized"));
   }
 };
+
+export const getCurrent = async (req, res, next) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    res.status(200).json({
+      email: req.user.email,
+      subscription: req.user.subscription,
+    });
+  } catch (e) {
+    next(HttpError(401, "Not authorized"));
+  }
+};
