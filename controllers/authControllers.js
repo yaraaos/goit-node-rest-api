@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { findUserByEmail, createUser, saveUserToken } from "../services/usersServices.js";
+import HttpError from "../helpers/HttpError.js";
+import { findUserByEmail, createUser, saveUserToken, clearUserToken } from "../services/usersServices.js";
 
 const { JWT_SECRET = "dev-secret", JWT_EXPIRES = "23h" } = process.env;
 
@@ -58,5 +59,20 @@ export const login = async (req, res) => {
   } catch (e) {
     console.error("Login failed:", e);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    const { id } = req.user; 
+
+    if (!id) {
+      return next(HttpError(401, "Not authorized"));
+    }
+
+    await clearUserToken(id);
+    return res.status(204).send(); // No Content
+  } catch (e) {
+    next(HttpError(401, "Not authorized"));
   }
 };
