@@ -1,41 +1,39 @@
 import Contact from '../db/Contact.js';
 
-async function listContacts() {
-  const contacts = await Contact.findAll({
-    order: [['createdAt', 'DESC']],
+async function listContacts(owner) {
+  return Contact.findAll({
+    where: { owner },
+    order: [["createdAt", "DESC"]],
   });
-  return contacts;
 }
 
-async function getContactById(contactId) {
-  const contact = await Contact.findByPk(contactId);
-  return contact || null;
+async function getContactById(contactId, owner) {
+  return Contact.findOne({ where: { id: contactId, owner } });
 }
 
-async function removeContact(contactId) {
-  const contact = await Contact.findByPk(contactId);
+async function removeContact(contactId, owner) {
+  const contact = await Contact.findOne({ where: { id: contactId, owner } });
   if (!contact) return null;
   await contact.destroy();
-  return contact; 
+  return contact;
 }
 
-async function addContact(name, email, phone) {
-  const created = await Contact.create({ name, email, phone });
-  return created;
+async function addContact({ name, email, phone, favorite = false, owner }) {
+  return Contact.create({ name, email, phone, favorite, owner });
 }
 
-async function updateContact(contactId, updateData) {
-  const contact = await Contact.findByPk(contactId);
+async function updateContact(contactId, updateData, owner) {
+  const contact = await Contact.findOne({ where: { id: contactId, owner } });
   if (!contact) return null;
   await contact.update(updateData);
   return contact;
 }
 
-export async function updateStatusContact(contactId, { favorite }) {
-  const contact = await Contact.findByPk(contactId);
+async function updateStatusContact(contactId, { favorite }, owner) {
+  const contact = await Contact.findOne({ where: { id: contactId, owner } });
   if (!contact) return null;
   await contact.update({ favorite });
   return contact;
 }
 
-export { listContacts, getContactById, removeContact, addContact, updateContact };
+export { listContacts, getContactById, removeContact, addContact, updateContact, updateStatusContact };
