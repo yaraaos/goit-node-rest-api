@@ -5,12 +5,19 @@ import "dotenv/config";
 import { initDb } from "./db/sequelize.js";  
 import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/auth", authRouter);
 app.use("/api/contacts", contactsRouter);
@@ -23,8 +30,6 @@ app.use((err, req, res, next) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({ message });
 });
-
-app.use("/api/auth", authRouter);
 
 const port = process.env.PORT || 3000;
 
