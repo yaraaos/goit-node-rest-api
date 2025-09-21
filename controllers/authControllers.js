@@ -1,3 +1,4 @@
+import gravatar from "gravatar";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import HttpError from "../helpers/HttpError.js";
@@ -7,7 +8,8 @@ const { JWT_SECRET = "dev-secret", JWT_EXPIRES = "23h" } = process.env;
 
 export const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = String(req.body.email).trim().toLowerCase();
+    const { password } = req.body;
 
     const existing = await findUserByEmail(email);
     if (existing) {
@@ -16,12 +18,15 @@ export const register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = await createUser({ email, passwordHash });
+    const avatarURL = gravatar.url(email.toLowerCase().trim(), { s: "250", d: "retro" }, true);
+
+    const user = await createUser({ email, passwordHash, avatarURL });
 
     return res.status(201).json({
       user: {
         email: user.email,
         subscription: user.subscription,
+        avatarURL: user.avatarURL,
       },
     });
   } catch (e) {
