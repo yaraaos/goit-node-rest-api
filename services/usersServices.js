@@ -16,3 +16,8 @@ export async function clearUserToken(userId, avatarURL) {
   await User.update({ token: null }, { where: { id: userId } });
   return { avatarURL };
 }
+
+export async function updateUserAvatar(userId, avatarURL) {
+  await User.update({ avatarURL }, { where: { id: userId } });
+  return { avatarURL };
+}
